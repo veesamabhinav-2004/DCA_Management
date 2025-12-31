@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Cases</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+
+</head>
+<body>
+
+<div class="container mt-4">
+  <h4>Case Management</h4>
+
+  <table class="table table-striped mt-3">
+    <table class="table table-striped mt-3">
+  <thead class="table-dark">
+    <tr>
+      <th>Case ID</th>
+      <th>Customer</th>
+      <th>Amount</th>
+      <th>Status</th>
+      <th>Assigned</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+
+  <tbody id="casesTable">
+    <!-- DATA COMES FROM JS -->
+  </tbody>
+</table>
+
+    <tbody id="casesTable"></tbody>
+
+  </table>
+</div>
+<script src="js/app.js"></script>
+<script>
+  console.log("INLINE SCRIPT LOADED");
+
+  fetch("http://localhost:5000/api/cases")
+    .then(res => res.json())
+    .then(data => {
+      console.log("DATA:", data);
+
+      const table = document.getElementById("casesTable");
+      table.innerHTML = "";
+
+      data.forEach(c => {
+        table.innerHTML += `
+          <tr>
+            <td>${c.id}</td>
+            <td>${c.customer}</td>
+            <td>₹${c.amount}</td>
+            <td>${c.status}</td>
+            <td>${c.assignedDCA || "-"}</td>
+            <td>
+              <a href="case-detail.html?id=${c.id}" class="btn btn-sm btn-primary">
+                View
+              </a>
+            </td>
+          </tr>
+        `;
+      });
+    })
+    .catch(err => console.error("FETCH ERROR:", err));
+</script>
+
+</body>
+<script src="js/app.js"></script>
+</html>
