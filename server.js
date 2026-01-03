@@ -101,3 +101,60 @@ app.post("/api/login", (req, res) => {
 app.listen(PORT, () => {
   console.log("Backend running on http://localhost:5000");
 });
+
+// AI Prediction API
+app.post("/api/ai/predict", (req, res) => {
+  const { amount, status } = req.body;
+
+  let priority = "Low";
+  let probability = 0.8;
+
+  if (amount >= 50000) {
+    priority = "High";
+    probability = 0.35;
+  } else if (amount >= 20000) {
+    priority = "Medium";
+    probability = 0.6;
+  }
+
+  res.json({
+    priority,
+    recovery_probability: probability
+  });
+});
+
+app.post("/api/cases", (req, res) => {
+  if (!["Admin", "Manager"].includes(req.headers.role)) {
+    return res.status(403).json({ message: "Access denied" });
+  }
+
+  const { customer, amount, status } = req.body;
+
+  db.run(
+    "INSERT INTO cases (customer, amount, status) VALUES (?, ?, ?)",
+    [customer, amount, status],
+    () => res.json({ message: "Case added" })
+  );
+});
+app.put("/api/cases/:id", (req, res) => {
+  if (!["Admin", "Manager"].includes(req.headers.role)) {
+    return res.status(403).json({ message: "Access denied" });
+  }
+
+  db.run(
+    "UPDATE cases SET amount = ? WHERE id = ?",
+    [req.body.amount, req.params.id],
+    () => res.json({ message: "Case updated" })
+  );
+});
+app.delete("/api/cases/:id", (req, res) => {
+  if (!["Admin", "Manager"].includes(req.headers.role)) {
+    return res.status(403).json({ message: "Access denied" });
+  }
+
+  db.run(
+    "DELETE FROM cases WHERE id = ?",
+    [req.params.id],
+    () => res.json({ message: "Case deleted" })
+  );
+});
